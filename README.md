@@ -12,8 +12,8 @@ This is a Flask application that allows users to upload movie data in CSV format
 1. **Clone the repository:**
 
     ```bash
-    git clone <repository_url>
-    cd <repository_directory>
+    git clone https://github.com/yugsoni98/moviesBulk.git
+    cd moviesBulk
     ```
 
 2. **Create a virtual environment and activate it:**
