@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Movies</title>
+</head>
+<body>
+
+    <h2>Movies Dashboard</h2>
+
+    <input type="number" id="year" placeholder="Enter year (e.g. 1995)">
+    <input type="text" id="language" placeholder="Enter language (e.g. en)">
+    <select id="sort_by">
+        <option value="">Sort By</option>
+        <option value="release_date">Release Date</option>
+        <option value="vote_average">Ratings</option>
+    </select>
+    <select id="order">
+        <option value="desc">Descending</option>
+        <option value="asc">Ascending</option>
+    </select>
+
+    <button onclick="fetchMovies()">Fetch Movies</button>
+    <button onclick="fetchMovies(true)">View All Movies</button>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Release Date</th>
+                <th>Language</th>
+                <th>Rating</th>
+                <th>Revenue</th>
+            </tr>
+        </thead>
+        <tbody id="movieTableBody"></tbody>
+    </table>
+
+    <p id="noData" style="display: none;">No Data Found</p>
+
+    <div>
+        <button onclick="prevPage()" id="prevPage" disabled>Previous</button>
+        <span id="pageInfo"></span>
+        <button onclick="nextPage()" id="nextPage">Next</button>
+    </div>
+
+    <hr>
+    <a href="/">Go to File Upload</a>
+
+    <script>
+        let currentPage = 1;
+        const limit = 10;
+
+        function fetchMovies(initialLoad = false) {
+            const year = document.getElementById('year').value;
+            const language = document.getElementById('language').value;
+            const sortBy = document.getElementById('sort_by').value;
+            const order = document.getElementById('order').value;
+
+            let apiUrl = `/movies?page=${currentPage}&limit=${limit}`;
+            if (!initialLoad) {
+                if (year) apiUrl += `&year=${year}`;
+                if (language) apiUrl += `&language=${language}`;
+                if (sortBy) apiUrl += `&sort_by=${sortBy}&order=${order}`;
+            }
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('movieTableBody');
+                    tableBody.innerHTML = '';
+
+                    if (data.movies.length === 0) {
+                        document.getElementById('noData').style.display = "block";
+                    } else {
+                        document.getElementById('noData').style.display = "none";
+                        data.movies.forEach(movie => {
+                            tableBody.innerHTML += `
+                                <tr>
+                                    <td>${movie.title}</td>
+                                    <td>${movie.release_date}</td>
+                                    <td>${movie.languages ? movie.languages.join(", ") : "-"}</td>
+                                    <td>${movie.vote_average}</td>
+                                    <td>${movie.revenue}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${data.total_pages}`;
+                    document.getElementById('prevPage').disabled = currentPage <= 1;
+                    document.getElementById('nextPage').disabled = currentPage >= data.total_pages;
+                })
+                .catch(error => console.error(error));
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchMovies();
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            fetchMovies();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchMovies(true);
+        });
+    </script>
+
+</body>
+</html>

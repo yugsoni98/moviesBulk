@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+</head>
+<body>
+
+    <h2>Upload File</h2>
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Upload</button>
+    <p id="message"></p>
+
+    <hr>
+    <a href="/moviesCRM">Go to Movies List</a>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                document.getElementById('message').innerText = "Please select a file.";
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                const base64String = reader.result.split(",")[1];
+
+                fetch('/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: file.name, content: base64String })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('message').innerText = data.message;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            };
+
+            reader.readAsDataURL(file);
+        }
+    </script>
+
+</body>
+</html>
