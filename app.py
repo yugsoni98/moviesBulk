@@ -97,7 +97,6 @@ def get_movies():
 
         sort_field = "release_date" if sort_by == "release_date" else "vote_average"
         sort_order = -1 if order == "desc" else 1 
-        print("query", query)
 
         movies = list(
             collection.find(query, {"_id": 0})  
@@ -109,7 +108,6 @@ def get_movies():
         for movie in movies:
             if isinstance(movie.get("languages"), str): 
                 movie["languages"] = eval(movie["languages"]) if "[" in movie["languages"] else [movie["languages"]]
-            print(movie)
             for key, value in movie.items():
                 if isinstance(value, list):
                     continue
@@ -120,7 +118,6 @@ def get_movies():
 
 
         total_records = collection.count_documents(query)
-        print(f'Total Records: {total_records}')  
 
         return jsonify({
             "total_records": total_records,
@@ -130,7 +127,6 @@ def get_movies():
         })
 
     except Exception as e:
-        print(f'Error: {str(e)}')  
         return jsonify({"error": str(e), "message": "Something went wrong."}), 500
 
 
